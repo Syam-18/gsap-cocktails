@@ -1,8 +1,12 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { SplitText } from "gsap/all";
+import { useRef } from "react";
+import { useMediaQuery } from "react-responsive";
 
 const Hero = () => {
+  const videoRef = useRef()
+  const isMobile = useMediaQuery({maxWidth: 767})
   useGSAP(() => {
     const heroSplit = new SplitText(".title", { type: "chars, words" });
 
@@ -14,27 +18,47 @@ const Hero = () => {
     gsap.from(heroSplit.chars, {
       yPercent: 100,
       duration: 1.8,
-      ease: 'expo.out',
+      ease: "expo.out",
       stagger: 0.06,
-    })
+    });
     gsap.from(paragraphSplit.lines, {
       opacity: 0,
       duration: 1.8,
-      ease: 'expo.out',
+      ease: "expo.out",
       delay: 1,
       stagger: 0.06,
-      yPercent:100,
-    } )
-    gsap.timeline({
+      yPercent: 100,
+    });
+    gsap
+      .timeline({
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: true,
+        },
+      })
+      .to(".right-leaf", { y: 200 }, 0)
+      .to(".left-leaf", { y: -200 }, 0);
+    const startValue= isMobile ? 'top 50%': 'center 60%'
+    const endValue= isMobile ? '120% top' : 'bottom top'
+
+    const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: 'bottom top',
+        trigger: 'video',
+        start: startValue,
+        end: endValue,
         scrub: true,
+        pin: true,
+
       }
     })
-    .to('.right-leaf', {y: 200}, 0 )
-    .to('.left-leaf', {y: -200}, 0 )
+
+    videoRef.current.onloadedmetadata = () => {
+      tl.to(videoRef.current, {
+        currentTime: videoRef.current.duration 
+      })
+    }
   }, []);
   return (
     <>
@@ -69,6 +93,10 @@ const Hero = () => {
           </div>
         </div>
       </section>
+      <div className="absolute video inset-0">
+        <video ref={videoRef} src="/videos/output.mp4" muted playsInline preload='auto'/>
+      </div>
+      
     </>
   );
 };
