@@ -57,5 +57,5 @@ const Cocktails = () => {
       </div>
     </section>
   );
-};[]
+};
 export default Cocktails;
